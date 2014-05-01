@@ -2,6 +2,7 @@ backendGenerator/.antlr-generator-3.2.0.jar
 
 **/.DS_Store
 
+**/generated/**
 **/src-gen/**
 **/bin/**
 **/xtend-gen/**
