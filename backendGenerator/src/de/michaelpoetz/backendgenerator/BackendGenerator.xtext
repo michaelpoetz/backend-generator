@@ -6,6 +6,9 @@ import "http://www.eclipse.org/xtext/common/JavaVMTypes" as jvmTypes
 
 Model:
 	"Model" name=ID
+	"package" package=STRING
+	"comment" comment=STRING
+	"since" since=STRING
 	properties += Property*;
 	
 Property:
