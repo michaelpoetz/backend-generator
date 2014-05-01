@@ -20,4 +20,5 @@ What's working already?
 * Adds Annotations (Entity, Table, Column) by guessing table names and column names
 * Adds a toString-method for all fields 
 * Generates a Javadoc-comment including "since" field
-
+* Generates simple interface (Repository) and implementing Bean
+* Generates empty Test-class
