@@ -8,13 +8,16 @@ Create a model for your system's backend in a simple DSL. This program then gene
 
 Prerequisites
 =============
-* This project relies on xtext, an Eclipse plugin for DSLs.
-* A maven POM will be included soon, I hope 
+* This project relies on Xtext, an Eclipse plugin for DSLs.
+  -> https://www.eclipse.org/Xtext/index.html
+* The generator is written in Xtend (which comes with Xtext
+  -> https://www.eclipse.org/xtend/index.html)
 
 
-Roadmap
-=======
-* Writing a grammar
-* Writing a code generator based upon that grammar
-* Wrinting models - testing
+What's working already?
+=======================
+* Generate Entity-classes
+* Adds Annotations (Entity, Table, Column) by guessing table names and column names
+* Adds a toString-method for all fields 
+* Generates a Javadoc-comment including "since" field
 
