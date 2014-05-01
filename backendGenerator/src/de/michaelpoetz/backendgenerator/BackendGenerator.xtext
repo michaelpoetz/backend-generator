@@ -2,8 +2,12 @@ grammar de.michaelpoetz.backendgenerator.BackendGenerator with org.eclipse.xtext
 
 generate backendGenerator "http://www.michaelpoetz.de/backendgenerator/BackendGenerator"
 
+import "http://www.eclipse.org/xtext/common/JavaVMTypes" as jvmTypes
+
 Model:
-	greetings+=Greeting*;
+	"Model" name=ID
+	properties += Property*;
 	
-Greeting:
-	'Hello' name=ID '!';
+Property:
+	(type = [jvmTypes::JvmType] | string = STRING) name = ID;
+	

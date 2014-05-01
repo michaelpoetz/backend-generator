@@ -1,9 +1,0 @@
-grammar de.michaelpoetz.backendgenerator.BackendGenerator with org.eclipse.xtext.common.Terminals
-
-generate backendGenerator "http://www.michaelpoetz.de/backendgenerator/BackendGenerator"
-
-Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';

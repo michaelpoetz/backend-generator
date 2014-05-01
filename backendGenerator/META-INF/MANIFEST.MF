@@ -11,6 +11,25 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.apache.commons.logging;bundle-version="1.0.4";resolution:=optional,
  org.eclipse.emf.codegen.ecore;resolution:=optional,
  org.eclipse.emf.mwe.utils;resolution:=optional,
- org.eclipse.emf.mwe2.launch;resolution:=optional
-Import-Package: org.apache.log4j
+ org.eclipse.emf.mwe2.launch;resolution:=optional,
+ org.eclipse.xtext.util,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.common,
+ org.antlr.runtime,
+ org.eclipse.xtext.common.types
+Import-Package: org.apache.log4j,
+ org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: de.michaelpoetz.backendgenerator,
+ de.michaelpoetz.backendgenerator.services,
+ de.michaelpoetz.backendgenerator.backendGenerator,
+ de.michaelpoetz.backendgenerator.backendGenerator.impl,
+ de.michaelpoetz.backendgenerator.backendGenerator.util,
+ de.michaelpoetz.backendgenerator.serializer,
+ de.michaelpoetz.backendgenerator.parser.antlr,
+ de.michaelpoetz.backendgenerator.parser.antlr.internal,
+ de.michaelpoetz.backendgenerator.validation,
+ de.michaelpoetz.backendgenerator.scoping,
+ de.michaelpoetz.backendgenerator.generator,
+ de.michaelpoetz.backendgenerator.formatting
+
