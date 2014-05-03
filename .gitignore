@@ -1,4 +1,6 @@
 backendGenerator/.antlr-generator-3.2.0.jar
+backendGenerator.ui/bin/**
+backendGenerator.tests/bin/**
 
 **/.DS_Store
 

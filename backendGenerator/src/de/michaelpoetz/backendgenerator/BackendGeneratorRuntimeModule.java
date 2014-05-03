@@ -3,9 +3,16 @@
  */
 package de.michaelpoetz.backendgenerator;
 
+import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class BackendGeneratorRuntimeModule extends de.michaelpoetz.backendgenerator.AbstractBackendGeneratorRuntimeModule {
 
+	@Override
+	public Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
+		// TODO Auto-generated method stub
+		return super.bindIGlobalScopeProvider();
+	}
 }

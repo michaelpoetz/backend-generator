@@ -15,12 +15,16 @@ class BackendGeneratorGenerator implements IGenerator {
 	static String CLASS_NAME;
 	static String VARIABLE_NAME;
 	static String PATH;
+	static String ID_TYPE;
+	static String ID_VALUE;
 	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
 		for(Model m : resource.allContents.filter(typeof(Model)).toIterable){
 			CLASS_NAME = m.name.toFirstUpper;
 			VARIABLE_NAME = m.name.toFirstLower;
 			PATH = m.package.replace(".", "/") + "/";
+			ID_TYPE = "";
+			ID_VALUE = "";
 			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + ".java", m.generateEntity);
 			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + "Repository.java", m.generateRepository);
 			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + "Bean.java", m.generateBean);
@@ -45,6 +49,10 @@ class BackendGeneratorGenerator implements IGenerator {
 		«FOR p : model.properties »
 			«FOR a : p.annotations»
 			«IF !a.name.startsWith("@")»@«ENDIF»«a.name»
+			«IF a.name.equals("Id") || a.name.equals("@Id")»
+			«ID_TYPE = p.type»
+			«ID_VALUE = p.name»
+			«ENDIF»
 			«ENDFOR»
 			@Column(name="«p.name.toLowerCase»")
 			private «p.type» «p.name»;
@@ -81,8 +89,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	«CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»);
 	 	
-	 	// TODO Determine id type
-	 	void delete«CLASS_NAME»();
+	 	void delete«CLASS_NAME»(final «ID_TYPE» «ID_VALUE»);
 	 	
 	 	List<«CLASS_NAME»> getAll«CLASS_NAME»s();
 	 }
@@ -103,23 +110,30 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	@Override
 	 	public «CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
-	 		return null;
+	 		Set<ConstraintViolation> errors = validator.validate(«VARIABLE_NAME»);
+	 		em.persist(«VARIABLE_NAME»);
+	 		em.flush();
+	 		em.refresh(«VARIABLE_NAME»);
+	 		return «VARIABLE_NAME»;
 	 	}
 	 	
 	 	@Override
 	 	public «CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
-	 		return null;
+	 		Set<ConstraintViolation> errors = validator.validate(«VARIABLE_NAME»);
+	 		em.merge(«VARIABLE_NAME»);
+	 		em.flush();
+	 		em.refresh(«VARIABLE_NAME»);
+	 		return «VARIABLE_NAME»;
 	 	}
 	 	
-	 	// TODO Determine id type
 	 	@Override
-	 	public void delete«CLASS_NAME»(){
-	 		
+	 	public void delete«CLASS_NAME»(final «ID_TYPE» «ID_VALUE»){
+	 		em.remove(«ID_VALUE»);
 	 	}
 	 	
 	 	@Override
 	 	public List<«CLASS_NAME»> getAll«CLASS_NAME»s(){
-	 		return null;
+	 		return new List<«CLASS_NAME»>();
 	 	}
 	 }
 	'''

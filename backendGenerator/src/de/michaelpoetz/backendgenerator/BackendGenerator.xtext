@@ -2,7 +2,11 @@ grammar de.michaelpoetz.backendgenerator.BackendGenerator with org.eclipse.xtext
 
 generate backendGenerator "http://www.michaelpoetz.de/backendgenerator/BackendGenerator"
 
-import "http://www.eclipse.org/xtext/common/JavaVMTypes" as jvmTypes
+//import "http://www.eclipse.org/xtext/common/JavaVMTypes" as jvmTypes
+
+App:
+	(models += Model)+
+;
 
 Model:
 	"Model" name=ID
@@ -11,11 +15,18 @@ Model:
 	"since" since=STRING
 	properties += Property*
 ;
-	
-Property:
-	(annotations += Annotation)* type = STRING name = ID
-;
 
 Annotation:
 	name = STRING
-;	
+;
+
+Property:
+	(annotations += Annotation)* type = STRING name = ID
+;
+	
+// Use this to refer to actual Java Types instead of writing the class name in a String	
+//Property:
+//	(annotations += Annotation)* type = [jvmTypes::JvmType|QualifiedName] name = ID
+//;
+//
+//QualifiedName: ID ('.' ID)* ;
