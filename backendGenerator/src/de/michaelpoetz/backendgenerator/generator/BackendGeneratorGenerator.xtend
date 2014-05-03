@@ -12,12 +12,19 @@ import org.eclipse.xtext.generator.IGenerator
  */
 class BackendGeneratorGenerator implements IGenerator {
 	
+	static String CLASS_NAME;
+	static String VARIABLE_NAME;
+	static String PATH;
+	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
 		for(Model m : resource.allContents.filter(typeof(Model)).toIterable){
-			fsa.generateFile(m.name.toFirstUpper + ".java", m.generateEntity);
-			fsa.generateFile(m.name.toFirstUpper + "Repository.java", m.generateRepository);
-			fsa.generateFile(m.name.toFirstUpper + "Bean.java", m.generateBean);
-			fsa.generateFile(m.name.toFirstUpper + "BeanIT.java", m.generateBeanIT);	
+			CLASS_NAME = m.name.toFirstUpper;
+			VARIABLE_NAME = m.name.toFirstLower;
+			PATH = m.package.replace(".", "/") + "/";
+			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + ".java", m.generateEntity);
+			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + "Repository.java", m.generateRepository);
+			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + "Bean.java", m.generateBean);
+			fsa.generateFile("test/java/it/" +m.package.split(".").last + "/" + m.name.toFirstUpper + "BeanIT.java", m.generateBeanIT);	
 		}
 	}
 	
@@ -33,28 +40,29 @@ class BackendGeneratorGenerator implements IGenerator {
 	 */
 	@Entity
 	@Table(name="«model.name.toLowerCase»")
-	public class «model.name.toFirstUpper» {
+	public class «CLASS_NAME» {
 		
 		«FOR p : model.properties »
+			«FOR a : p.annotations»
+			«IF !a.name.startsWith("@")»@«ENDIF»«a.name»
+			«ENDFOR»
 			@Column(name="«p.name.toLowerCase»")
-			private «p.string» «p.name»;
+			private «p.type» «p.name»;
 			
 		«ENDFOR»
-		
 		«FOR p : model.properties »
-			public «p.string» get«p.name.toFirstUpper»(){
+			public «p.type» get«p.name.toFirstUpper»(){
 				return this.«p.name»;
 			};
 			
-			public void set«p.name.toFirstUpper»(«p.string» «p.name»){
+			public void set«p.name.toFirstUpper»(«p.type» «p.name»){
 				this.«p.name» = «p.name»;
 			}
 			
 		«ENDFOR»
-		
 		@Override
 		public String toString(){
-			return "«model.name.toFirstUpper» [«FOR p : model.properties» «p.name»="+this.«p.name»+"«IF !(p == model.properties.last)»,«ENDIF» «ENDFOR»]";
+			return "«CLASS_NAME» [«FOR p : model.properties» «p.name»="+this.«p.name»+"«IF !(p == model.properties.last)»,«ENDIF» «ENDFOR»]";
 		}
 	}
 	'''
@@ -63,20 +71,20 @@ class BackendGeneratorGenerator implements IGenerator {
 	package «model.package.replace("entity","service.api")»;
 	
 	/**
-	 * This is the Interface for the service operations for the «model.name.toFirstUpper».
+	 * This is the Interface for the service operations for the «CLASS_NAME».
 	 * 
 	 * @since «model.since»
 	 */
-	 public interface «model.name.toFirstUpper»Repository {
+	 public interface «CLASS_NAME»Repository {
 	 	
-	 	«model.name.toFirstUpper» save«model.name.toFirstUpper»(final «model.name.toFirstUpper» «model.name.toFirstLower»);
+	 	«CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»);
 	 	
-	 	«model.name.toFirstUpper» edit«model.name.toFirstUpper»(final «model.name.toFirstUpper» «model.name.toFirstLower»);
+	 	«CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»);
 	 	
 	 	// TODO Determine id type
-	 	void delete«model.name.toFirstUpper»();
+	 	void delete«CLASS_NAME»();
 	 	
-	 	List<«model.name.toFirstUpper»> getAll«model.name.toFirstUpper»s();
+	 	List<«CLASS_NAME»> getAll«CLASS_NAME»s();
 	 }
 	'''
 	
@@ -84,30 +92,33 @@ class BackendGeneratorGenerator implements IGenerator {
 	package «model.package.replace("entity","service")»;
 	
 	/**
-	 * This is the implementing class for the service operations for the «model.name.toFirstUpper».
+	 * This is the implementing class for the service operations for the «CLASS_NAME».
 	 * 
 	 * @since «model.since»
 	 */
-	 public class «model.name.toFirstUpper»Bean implements «model.name.toFirstUpper»Repository {
+	 public class «CLASS_NAME»Bean implements «CLASS_NAME»Repository {
+	 	
+	 	@PersistenceContext(unitName = "default")
+	 	private EntityManager em;
 	 	
 	 	@Override
-	 	public «model.name.toFirstUpper» save«model.name.toFirstUpper»(final «model.name.toFirstUpper» «model.name.toFirstLower»){
+	 	public «CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
 	 		return null;
 	 	}
 	 	
 	 	@Override
-	 	public «model.name.toFirstUpper» edit«model.name.toFirstUpper»(final «model.name.toFirstUpper» «model.name.toFirstLower»){
+	 	public «CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
 	 		return null;
 	 	}
 	 	
 	 	// TODO Determine id type
 	 	@Override
-	 	public void delete«model.name.toFirstUpper»(){
+	 	public void delete«CLASS_NAME»(){
 	 		
 	 	}
 	 	
 	 	@Override
-	 	public List<«model.name.toFirstUpper»> getAll«model.name.toFirstUpper»s(){
+	 	public List<«CLASS_NAME»> getAll«CLASS_NAME»s(){
 	 		return null;
 	 	}
 	 }
@@ -117,12 +128,34 @@ class BackendGeneratorGenerator implements IGenerator {
 	package it.«model.package.split(".").last»;
 	
 	/**
-	 * Class under Test: «model.name.toFirstUpper»Bean.
+	 * Class under Test: «CLASS_NAME»Bean.
 	 * 
 	 * @since «model.since»
 	 */
-	 public class «model.name.toFirstUpper»BeanIT {
+	 public class «CLASS_NAME»BeanIT {
 	 	
+	 	@Inject
+	 	private «CLASS_NAME»Repository «VARIABLE_NAME»Bean;
+	 	
+	 	@Test
+	 	public void shouldSave«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 	
+	 	@Test
+	 	public void shouldEdit«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 	
+	 	@Test
+	 	public void shouldDelete«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 	
+	 	@Test
+	 	public void shouldGet«CLASS_NAME»(){
+	 		fail();
+	 	}
 	 }
 	'''
 	

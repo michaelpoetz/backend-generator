@@ -9,8 +9,13 @@ Model:
 	"package" package=STRING
 	"comment" comment=STRING
 	"since" since=STRING
-	properties += Property*;
+	properties += Property*
+;
 	
 Property:
-	(type = [jvmTypes::JvmType] | string = STRING) name = ID;
-	
+	(annotations += Annotation)* type = STRING name = ID
+;
+
+Annotation:
+	name = STRING
+;	
