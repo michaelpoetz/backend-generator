@@ -22,3 +22,11 @@ What's working already?
 * Generates a Javadoc-comment including "since" field
 * Generates simple interface (Repository) and implementing Bean
 * Generates empty Test-class
+
+TODO
+----
+* Write a configuration file
+	* configure which Exception should be thrown (if any)
+	* should DTOs be generated and how
+	* configure generation path
+
