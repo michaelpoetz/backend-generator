@@ -1,5 +1,7 @@
 package de.michaelpoetz.backendgenerator.generator
 
+import de.michaelpoetz.backendgenerator.backendGenerator.App
+import de.michaelpoetz.backendgenerator.backendGenerator.Configuration
 import de.michaelpoetz.backendgenerator.backendGenerator.Model
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
@@ -12,23 +14,28 @@ import org.eclipse.xtext.generator.IGenerator
  */
 class BackendGeneratorGenerator implements IGenerator {
 	
-	static String CLASS_NAME;
-	static String VARIABLE_NAME;
-	static String PATH;
-	static String ID_TYPE;
-	static String ID_VALUE;
+	private static String CLASS_NAME;
+	private static String VARIABLE_NAME;
+	private static String PATH;
+	private static String ID_TYPE;
+	private static String ID_VALUE;
+	
+	private Configuration CONFIG;
 	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
+		var a = resource.allContents.filter(typeof(App)).head;
+		CONFIG = a.importConfig;
+		
 		for(Model m : resource.allContents.filter(typeof(Model)).toIterable){
 			CLASS_NAME = m.name.toFirstUpper;
 			VARIABLE_NAME = m.name.toFirstLower;
 			PATH = m.package.replace(".", "/") + "/";
 			ID_TYPE = "";
 			ID_VALUE = "";
-			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + ".java", m.generateEntity);
-			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + "Repository.java", m.generateRepository);
-			fsa.generateFile("main/java/" + PATH + m.name.toFirstUpper + "Bean.java", m.generateBean);
-			fsa.generateFile("test/java/it/" +m.package.split(".").last + "/" + m.name.toFirstUpper + "BeanIT.java", m.generateBeanIT);	
+			fsa.generateFile("main/java/" + PATH + CLASS_NAME + ".java", m.generateEntity);
+			fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.interface + ".java", m.generateRepository);
+			fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.service + ".java", m.generateBean);
+			fsa.generateFile("test/java/it/" +m.package.split(".").last + "/" + CLASS_NAME +  CONFIG.service_test + ".java", m.generateBeanIT);	
 		}
 	}
 	
@@ -83,7 +90,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 * 
 	 * @since «model.since»
 	 */
-	 public interface «CLASS_NAME»Repository {
+	 public interface «CLASS_NAME»«CONFIG.interface» {
 	 	
 	 	«CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»);
 	 	
@@ -103,7 +110,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 * 
 	 * @since «model.since»
 	 */
-	 public class «CLASS_NAME»Bean implements «CLASS_NAME»Repository {
+	 public class «CLASS_NAME»«CONFIG.service» implements «CLASS_NAME»«CONFIG.interface» {
 	 	
 	 	@PersistenceContext(unitName = "default")
 	 	private EntityManager em;
@@ -111,6 +118,9 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	@Override
 	 	public «CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
 	 		Set<ConstraintViolation> errors = validator.validate(«VARIABLE_NAME»);
+	 		if(!errors.isEmpty()){
+	 			throw new ConstraintViolationException();
+	 		}
 	 		em.persist(«VARIABLE_NAME»);
 	 		em.flush();
 	 		em.refresh(«VARIABLE_NAME»);
@@ -120,6 +130,9 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	@Override
 	 	public «CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
 	 		Set<ConstraintViolation> errors = validator.validate(«VARIABLE_NAME»);
+	 		if(!errors.isEmpty()){
+	 			throw new ConstraintViolationException();
+	 		}
 	 		em.merge(«VARIABLE_NAME»);
 	 		em.flush();
 	 		em.refresh(«VARIABLE_NAME»);
@@ -142,14 +155,14 @@ class BackendGeneratorGenerator implements IGenerator {
 	package it.«model.package.split(".").last»;
 	
 	/**
-	 * Class under Test: «CLASS_NAME»Bean.
+	 * Class under Test: «CLASS_NAME»«CONFIG.service».
 	 * 
 	 * @since «model.since»
 	 */
-	 public class «CLASS_NAME»BeanIT {
+	 public class «CLASS_NAME»«CONFIG.service_test» {
 	 	
 	 	@Inject
-	 	private «CLASS_NAME»Repository «VARIABLE_NAME»Bean;
+	 	private «CLASS_NAME»«CONFIG.interface» «VARIABLE_NAME»«CONFIG.service»;
 	 	
 	 	@Test
 	 	public void shouldSave«CLASS_NAME»(){

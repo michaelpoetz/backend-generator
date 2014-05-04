@@ -5,8 +5,33 @@ generate backendGenerator "http://www.michaelpoetz.de/backendgenerator/BackendGe
 //import "http://www.eclipse.org/xtext/common/JavaVMTypes" as jvmTypes
 
 App:
-	(models += Model)+
+	(config = Configuration)?
+	("Configuration" importConfig = [Configuration])?
+	(models += Model)*
 ;
+
+// Config
+
+/*
+ * You can specify how and if classes and interfaces are generated in the name.* fields.
+ * Leave them, and no class/interface is generated. Only "mandatory" classes are:
+ * The Entity
+ * The Service (aka Bean)
+ * Optional are:
+ * Repository (aka Interface)
+ * Webservice
+ * Test for Bean
+ * Test for Webservice
+ */
+Configuration:
+	"Configuration" name=ID
+	"name.service" service = STRING
+	"name.interface" interface = STRING?
+	"name.webservice" webservice = STRING?
+	"name.service.test" service_test = STRING?
+	"name.webservice.test" webservice_test = STRING?
+	;
+// Model
 
 Model:
 	"Model" name=ID
