@@ -33,15 +33,26 @@ class BackendGeneratorGenerator implements IGenerator {
 			ID_TYPE = "";
 			ID_VALUE = "";
 			fsa.generateFile("main/java/" + PATH + CLASS_NAME + ".java", m.generateEntity);
-			fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.interface + ".java", m.generateRepository);
+			if (CONFIG.interface != null) fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.interface + ".java", m.generateRepository);
 			fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.service + ".java", m.generateBean);
-			fsa.generateFile("test/java/it/" +m.package.split(".").last + "/" + CLASS_NAME +  CONFIG.service_test + ".java", m.generateBeanIT);	
+			if (CONFIG.service_test != null) fsa.generateFile("test/java/it/" + PATH + CLASS_NAME + CONFIG.service_test + ".java", m.generateBeanIT);
+			if (CONFIG.webservice != null) fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.webservice + ".java", m.generateWebservice);
+			if (CONFIG.webservice_test != null) fsa.generateFile("test/java/it/webservice/" + PATH + CLASS_NAME + CONFIG.webservice_test + ".java", m.generateWebserviceIT);	
 		}
+	}
+	/**
+	 * These methods avoid the print of the variables in the template when they are assigned like this «ID_VALUE = p.name»
+	 */
+	def void assignIdType(String type){
+		ID_TYPE = type;
+	}
+	def void assignIdName(String name){
+		ID_VALUE = name;
 	}
 	
 	def CharSequence generateEntity(Model model)'''
 	package «model.package»;
-	
+
 	//TODO Generate imports by pressing your IDEs hot key combination
 
 	/**
@@ -55,10 +66,10 @@ class BackendGeneratorGenerator implements IGenerator {
 		
 		«FOR p : model.properties »
 			«FOR a : p.annotations»
-			«IF !a.name.startsWith("@")»@«ENDIF»«a.name»
-			«IF a.name.equals("Id") || a.name.equals("@Id")»
-			«ID_TYPE = p.type»
-			«ID_VALUE = p.name»
+			@«a.name»
+			«IF a.name.equals("Id")»
+			«p.type.assignIdType»
+			«p.name.assignIdName»
 			«ENDIF»
 			«ENDFOR»
 			@Column(name="«p.name.toLowerCase»")
@@ -117,7 +128,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	@Override
 	 	public «CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
-	 		Set<ConstraintViolation> errors = validator.validate(«VARIABLE_NAME»);
+	 		Set<ConstraintViolation<«CLASS_NAME»>> errors = validator.validate(«VARIABLE_NAME»);
 	 		if(!errors.isEmpty()){
 	 			throw new ConstraintViolationException();
 	 		}
@@ -129,7 +140,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	@Override
 	 	public «CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
-	 		Set<ConstraintViolation> errors = validator.validate(«VARIABLE_NAME»);
+	 		Set<ConstraintViolation<«CLASS_NAME»>> errors = validator.validate(«VARIABLE_NAME»);
 	 		if(!errors.isEmpty()){
 	 			throw new ConstraintViolationException();
 	 		}
@@ -146,19 +157,21 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	@Override
 	 	public List<«CLASS_NAME»> getAll«CLASS_NAME»s(){
+	 		// TODO Use EntityManager to retrieve List ... Usually with a NamedQuery
 	 		return new List<«CLASS_NAME»>();
 	 	}
 	 }
 	'''
 	
 	def String generateBeanIT(Model model)'''
-	package it.«model.package.split(".").last»;
+	package it.«model.package»;
 	
 	/**
 	 * Class under Test: «CLASS_NAME»«CONFIG.service».
 	 * 
 	 * @since «model.since»
 	 */
+	 «IF CONFIG.testrunner != null»@RunWith(«CONFIG.testrunner».class)«ENDIF»
 	 public class «CLASS_NAME»«CONFIG.service_test» {
 	 	
 	 	@Inject
@@ -184,6 +197,8 @@ class BackendGeneratorGenerator implements IGenerator {
 	 		fail();
 	 	}
 	 }
-	'''
+	'''	
 	
+	def String generateWebservice(Model m)''''''
+	def String generateWebserviceIT(Model m)''''''
 }

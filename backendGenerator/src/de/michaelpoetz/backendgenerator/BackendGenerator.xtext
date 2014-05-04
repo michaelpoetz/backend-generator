@@ -10,28 +10,33 @@ App:
 	(models += Model)*
 ;
 
-// Config
-
-/*
+/* Configuration
+ *
  * You can specify how and if classes and interfaces are generated in the name.* fields.
  * Leave them, and no class/interface is generated. Only "mandatory" classes are:
- * The Entity
- * The Service (aka Bean)
+ * The Entity 				- Specified in the Model
+ * The Service 				- usually "Bean"
  * Optional are:
- * Repository (aka Interface)
- * Webservice
+ * Repository				- usually "Interface"
+ * Webservice				
  * Test for Bean
  * Test for Webservice
+ * 
+ * You can also configure the TestRunner via the testrunner-Property (JUnit, Arquillian ...)
  */
 Configuration:
 	"Configuration" name=ID
-	"name.service" service = STRING
-	"name.interface" interface = STRING?
-	"name.webservice" webservice = STRING?
-	"name.service.test" service_test = STRING?
-	"name.webservice.test" webservice_test = STRING?
+	("name.service" service = STRING) 
+	("name.interface" interface = STRING?)  
+	("name.webservice" webservice = STRING?) 
+	("name.service.test" service_test = STRING?) 
+	("name.webservice.test" webservice_test = STRING)? 
+	("testrunner" testrunner = STRING)?
 	;
-// Model
+	
+/* Model
+ * 
+ */
 
 Model:
 	"Model" name=ID
@@ -42,7 +47,7 @@ Model:
 ;
 
 Annotation:
-	name = STRING
+	"@"name = STRING
 ;
 
 Property:
