@@ -128,10 +128,12 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	@Override
 	 	public «CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
+	 		«IF CONFIG.exception != null»
 	 		Set<ConstraintViolation<«CLASS_NAME»>> errors = validator.validate(«VARIABLE_NAME»);
 	 		if(!errors.isEmpty()){
-	 			throw new ConstraintViolationException();
+	 			throw new «CONFIG.exception»();
 	 		}
+	 		«ENDIF»
 	 		em.persist(«VARIABLE_NAME»);
 	 		em.flush();
 	 		em.refresh(«VARIABLE_NAME»);
@@ -199,6 +201,45 @@ class BackendGeneratorGenerator implements IGenerator {
 	 }
 	'''	
 	
-	def String generateWebservice(Model m)''''''
+	def String generateWebservice(Model model)'''
+	package «model.package»;
+	
+	/**
+	 *
+	 * @since 
+	 */
+	 @Path("/rs/«CLASS_NAME.toLowerCase»")
+	 public class «CLASS_NAME»«CONFIG.webservice» {
+	 	
+	 	// TODO MediaTypes angeben
+	 	@GET
+	 	@Consumes()
+	 	@Produces()
+	 	public Response get«CLASS_NAME»s(){
+	 		return Response.ok().build();
+	 	}
+	 	
+	 	@POST
+	 	@Consumes()
+	 	@Produces()
+	 	public Response create«CLASS_NAME»(){
+	 		return Response.ok().build();
+	 	}
+	 	
+	 	@PUT
+	 	@Consumes()
+	 	@Produces()
+	 	public Response edit«CLASS_NAME»(){
+	 		return Response.ok().build();
+	 	}
+	 	
+	 	@DELETE
+	 	@Consumes()
+	 	@Produces()
+	 	public Response delete«CLASS_NAME»(){
+	 		return Response.ok().build();
+	 	}
+	 }
+	'''
 	def String generateWebserviceIT(Model m)''''''
 }

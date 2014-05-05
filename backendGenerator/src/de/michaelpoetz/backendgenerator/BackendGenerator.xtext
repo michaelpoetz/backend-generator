@@ -27,12 +27,13 @@ App:
 Configuration:
 	"Configuration" name=ID
 	("name.service" service = STRING) 
-	("name.interface" interface = STRING?)  
-	("name.webservice" webservice = STRING?) 
-	("name.service.test" service_test = STRING?) 
+	("name.interface" interface = STRING)?  
+	("name.webservice" webservice = STRING)? 
+	("name.service.test" service_test = STRING)? 
 	("name.webservice.test" webservice_test = STRING)? 
-	("testrunner" testrunner = STRING)?
-	;
+	("testrunner.class" testrunner = STRING)?
+	("exception.class" exception = STRING)?
+;
 	
 /* Model
  * 
