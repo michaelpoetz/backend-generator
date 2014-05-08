@@ -2,8 +2,6 @@ grammar de.michaelpoetz.backendgenerator.BackendGenerator with org.eclipse.xtext
 
 generate backendGenerator "http://www.michaelpoetz.de/backendgenerator/BackendGenerator"
 
-//import "http://www.eclipse.org/xtext/common/JavaVMTypes" as jvmTypes
-
 App:
 	(config = Configuration)?
 	("Configuration" importConfig = [Configuration])?
@@ -54,10 +52,3 @@ Annotation:
 Property:
 	(annotations += Annotation)* type = STRING name = ID
 ;
-	
-// Use this to refer to actual Java Types instead of writing the class name in a String	
-//Property:
-//	(annotations += Annotation)* type = [jvmTypes::JvmType|QualifiedName] name = ID
-//;
-//
-//QualifiedName: ID ('.' ID)* ;

@@ -32,12 +32,12 @@ class BackendGeneratorGenerator implements IGenerator {
 			PATH = m.package.replace(".", "/") + "/";
 			ID_TYPE = "";
 			ID_VALUE = "";
-			fsa.generateFile("main/java/" + PATH + CLASS_NAME + ".java", m.generateEntity);
-			if (CONFIG.interface != null) fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.interface + ".java", m.generateRepository);
-			fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.service + ".java", m.generateBean);
-			if (CONFIG.service_test != null) fsa.generateFile("test/java/it/" + PATH + CLASS_NAME + CONFIG.service_test + ".java", m.generateBeanIT);
-			if (CONFIG.webservice != null) fsa.generateFile("main/java/" + PATH + CLASS_NAME + CONFIG.webservice + ".java", m.generateWebservice);
-			if (CONFIG.webservice_test != null) fsa.generateFile("test/java/it/webservice/" + PATH + CLASS_NAME + CONFIG.webservice_test + ".java", m.generateWebserviceIT);	
+			fsa.generateFile("main/java/" + PATH + "entity/" + CLASS_NAME + ".java", m.generateEntity);
+			if (CONFIG.interface != null) fsa.generateFile("main/java/" + PATH + "service/api/" + CLASS_NAME + CONFIG.interface + ".java", m.generateRepository);
+			fsa.generateFile("main/java/" + PATH + "service/" + CLASS_NAME + CONFIG.service + ".java", m.generateBean);
+			if (CONFIG.service_test != null) fsa.generateFile("test/java/it/" + PATH + "service/" + CLASS_NAME + CONFIG.service_test + ".java", m.generateBeanIT);
+			if (CONFIG.webservice != null) fsa.generateFile("main/java/" + PATH + "webservice/" + CLASS_NAME + CONFIG.webservice + ".java", m.generateWebservice);
+			if (CONFIG.webservice_test != null) fsa.generateFile("test/java/it/" + PATH + "webservice/" + CLASS_NAME + CONFIG.webservice_test + ".java", m.generateWebserviceIT);	
 		}
 	}
 	/**
@@ -51,7 +51,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	}
 	
 	def CharSequence generateEntity(Model model)'''
-	package «model.package»;
+	package «model.package».entity;
 
 	//TODO Generate imports by pressing your IDEs hot key combination
 
@@ -94,7 +94,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	'''
 	
 	def String generateRepository(Model model)'''
-	package «model.package.replace("entity","service.api")»;
+	package «model.package».service.api;
 	
 	/**
 	 * This is the Interface for the service operations for the «CLASS_NAME».
@@ -114,7 +114,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	'''
 	
 	def String generateBean(Model model)'''
-	package «model.package.replace("entity","service")»;
+	package «model.package».service;
 	
 	/**
 	 * This is the implementing class for the service operations for the «CLASS_NAME».
@@ -166,7 +166,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	'''
 	
 	def String generateBeanIT(Model model)'''
-	package it.«model.package»;
+	package it.«model.package».service;
 	
 	/**
 	 * Class under Test: «CLASS_NAME»«CONFIG.service».
@@ -202,11 +202,11 @@ class BackendGeneratorGenerator implements IGenerator {
 	'''	
 	
 	def String generateWebservice(Model model)'''
-	package «model.package»;
+	package «model.package».webservice;
 	
 	/**
 	 *
-	 * @since 
+	 * @since «model.since»
 	 */
 	 @Path("/rs/«CLASS_NAME.toLowerCase»")
 	 public class «CLASS_NAME»«CONFIG.webservice» {
@@ -241,5 +241,36 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	}
 	 }
 	'''
-	def String generateWebserviceIT(Model m)''''''
+	def String generateWebserviceIT(Model model)'''
+	package it.«model.package».webservice;
+	
+	/**
+	 * Class under Test: «CLASS_NAME»«CONFIG.webservice».
+	 * 
+	 * @since «model.since»
+	 */
+	 «IF CONFIG.testrunner != null»@RunWith(«CONFIG.testrunner».class)«ENDIF»
+	 public class «CLASS_NAME»«CONFIG.webservice_test» {
+	 	
+	 	@Test
+	 	public void shouldSave«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 	
+	 	@Test
+	 	public void shouldEdit«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 	
+	 	@Test
+	 	public void shouldDelete«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 	
+	 	@Test
+	 	public void shouldGet«CLASS_NAME»(){
+	 		fail();
+	 	}
+	 }
+	'''
 }
