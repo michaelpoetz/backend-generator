@@ -25,8 +25,8 @@ What's working already?
 
 TODO
 ----
-* Write a configuration file
-	* configure which Exception should be thrown (if any)
-	* should DTOs be generated and how
-	* configure generation path
-
+* Comment in Webservice should be generated
+* Bean should be injected in Webservice as well
+* Validation in save-method
+* remove "rs" in path
+* Add @Stateless annotation to Webservice 
