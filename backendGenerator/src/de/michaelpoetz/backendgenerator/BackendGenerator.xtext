@@ -29,8 +29,14 @@ Configuration:
 	("name.webservice" webservice = STRING)? 
 	("name.service.test" service_test = STRING)? 
 	("name.webservice.test" webservice_test = STRING)? 
-	("testrunner.class" testrunner = STRING)?
 	("exception.class" exception = STRING)?
+	(testConfig = TestConfiguration)?
+;
+
+TestConfiguration:
+	"TestConfiguration" name=ID
+	("testrunner.class" testrunner = STRING)?
+	("parent.class" parent = STRING)?
 ;
 	
 /* Model
