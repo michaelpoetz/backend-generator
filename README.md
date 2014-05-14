@@ -25,8 +25,3 @@ What's working already?
 
 TODO
 ----
-* Comment in Webservice should be generated
-* Bean should be injected in Webservice as well
-* Validation in save-method
-* remove "rs" in path
-* Add @Stateless annotation to Webservice 

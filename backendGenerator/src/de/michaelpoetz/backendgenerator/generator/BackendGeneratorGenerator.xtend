@@ -62,7 +62,17 @@ class BackendGeneratorGenerator implements IGenerator {
 	 */
 	@Entity
 	@Table(name="«model.name.toLowerCase»")
+	@NamedQueries({
+	 	@NamedQuery(name=«CLASS_NAME».Query.GET_ALL_«CLASS_NAME.toUpperCase», query="SELECT x FROM «CLASS_NAME» x")
+	 })
 	public class «CLASS_NAME» {
+		
+		/**
+		 * Queries for working with «CLASS_NAME» objects.
+		 */
+		public static final class Query {
+			public final static String GET_ALL_«CLASS_NAME.toUpperCase» = "«CLASS_NAME».Query.getAll«CLASS_NAME»"
+		}
 		
 		«FOR p : model.properties »
 			«FOR a : p.annotations»
@@ -103,12 +113,34 @@ class BackendGeneratorGenerator implements IGenerator {
 	 */
 	 public interface «CLASS_NAME»«CONFIG.interface» {
 	 	
+	 	/**
+	 	 * Saves a «CLASS_NAME» object.
+	 	 * @param «VARIABLE_NAME» - the «CLASS_NAME» object to be saved.
+	 	 * @return the persisted «CLASS_NAME» object.
+	 	 * @since «model.since»
+	 	 */
 	 	«CLASS_NAME» save«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»);
 	 	
+	 	/**
+	 	 * Updates a «CLASS_NAME» object.
+	 	 * @param «VARIABLE_NAME» - the «CLASS_NAME» object to be updated and saved.
+	 	 * @return the updated and persisted «CLASS_NAME» object.
+	 	 * @since «model.since»
+	 	 */
 	 	«CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»);
 	 	
+	 	/**
+	 	 * Deletes a «CLASS_NAME» object with the given ID.
+	 	 * @param «ID_VALUE» - the ID of the «CLASS_NAME» object to be deleted.
+	 	 * @since «model.since»
+	 	 */
 	 	void delete«CLASS_NAME»(final «ID_TYPE» «ID_VALUE»);
 	 	
+	 	/**
+	 	 * Retrieves all «CLASS_NAME» objects.
+	 	 * @return the list of «CLASS_NAME» objects.
+	 	 * @since «model.since»
+	 	 */
 	 	List<«CLASS_NAME»> getAll«CLASS_NAME»s();
 	 }
 	'''
@@ -121,6 +153,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 * 
 	 * @since «model.since»
 	 */
+	 @Stateless
 	 public class «CLASS_NAME»«CONFIG.service» implements «CLASS_NAME»«CONFIG.interface» {
 	 	
 	 	@PersistenceContext(unitName = "default")
@@ -131,7 +164,7 @@ class BackendGeneratorGenerator implements IGenerator {
 	 		«IF CONFIG.exception != null»
 	 		Set<ConstraintViolation<«CLASS_NAME»>> errors = validator.validate(«VARIABLE_NAME»);
 	 		if(!errors.isEmpty()){
-	 			throw new «CONFIG.exception»();
+	 			throw new «CONFIG.exception»;
 	 		}
 	 		«ENDIF»
 	 		em.persist(«VARIABLE_NAME»);
@@ -142,13 +175,15 @@ class BackendGeneratorGenerator implements IGenerator {
 	 	
 	 	@Override
 	 	public «CLASS_NAME» edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
+	 		«IF CONFIG.exception != null»
 	 		Set<ConstraintViolation<«CLASS_NAME»>> errors = validator.validate(«VARIABLE_NAME»);
 	 		if(!errors.isEmpty()){
-	 			throw new ConstraintViolationException();
+	 			throw new «CONFIG.exception»;
 	 		}
+	 		«ENDIF»
 	 		em.merge(«VARIABLE_NAME»);
 	 		em.flush();
-	 		em.refresh(«VARIABLE_NAME»);
+	 		//em.refresh(«VARIABLE_NAME»);
 	 		return «VARIABLE_NAME»;
 	 	}
 	 	
@@ -173,30 +208,30 @@ class BackendGeneratorGenerator implements IGenerator {
 	 * 
 	 * @since «model.since»
 	 */
-	 «IF CONFIG.testrunner != null»@RunWith(«CONFIG.testrunner».class)«ENDIF»
-	 public class «CLASS_NAME»«CONFIG.service_test» {
+	 «IF CONFIG.testConfig.testrunner != null»@RunWith(«CONFIG.testConfig.testrunner».class)«ENDIF»
+	 public class «CLASS_NAME»«CONFIG.service_test» «IF CONFIG.testConfig.parent != null»«CONFIG.testConfig.parent»«ENDIF» {
 	 	
 	 	@Inject
 	 	private «CLASS_NAME»«CONFIG.interface» «VARIABLE_NAME»«CONFIG.service»;
 	 	
 	 	@Test
 	 	public void shouldSave«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 	
 	 	@Test
 	 	public void shouldEdit«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 	
 	 	@Test
 	 	public void shouldDelete«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 	
 	 	@Test
 	 	public void shouldGet«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 }
 	'''	
@@ -205,39 +240,42 @@ class BackendGeneratorGenerator implements IGenerator {
 	package «model.package».webservice;
 	
 	/**
-	 *
+	 * This is the Webservice for handling the «CLASS_NAME» objects.
 	 * @since «model.since»
 	 */
-	 @Path("/rs/«CLASS_NAME.toLowerCase»")
+	 @Stateless
+	 @Path("/«CLASS_NAME.toLowerCase»")
 	 public class «CLASS_NAME»«CONFIG.webservice» {
 	 	
-	 	// TODO MediaTypes angeben
+	 	@Inject
+	 	private «CLASS_NAME»«CONFIG.interface» «VARIABLE_NAME»«CONFIG.service»;
+	 	
 	 	@GET
-	 	@Consumes()
-	 	@Produces()
+	 	@Produces(MediaType.APPLICATION_JSON)
 	 	public Response get«CLASS_NAME»s(){
-	 		return Response.ok().build();
+	 		return Response.ok(«VARIABLE_NAME»«CONFIG.service».get«CLASS_NAME»s()).build();
 	 	}
 	 	
 	 	@POST
-	 	@Consumes()
-	 	@Produces()
-	 	public Response create«CLASS_NAME»(){
-	 		return Response.ok().build();
+	 	@Consumes(MediaType.APPLICATION_JSON)
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	public Response create«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
+	 		return Response.ok(«VARIABLE_NAME»«CONFIG.service».save«CLASS_NAME»(«VARIABLE_NAME»)).build();
 	 	}
 	 	
 	 	@PUT
-	 	@Consumes()
-	 	@Produces()
-	 	public Response edit«CLASS_NAME»(){
-	 		return Response.ok().build();
+	 	@Path("/edit")
+	 	@Consumes(MediaType.APPLICATION_JSON)
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	public Response edit«CLASS_NAME»(final «CLASS_NAME» «VARIABLE_NAME»){
+	 		return Response.ok(«VARIABLE_NAME»«CONFIG.service».edit«CLASS_NAME»(«VARIABLE_NAME»)).build();
 	 	}
 	 	
 	 	@DELETE
-	 	@Consumes()
-	 	@Produces()
-	 	public Response delete«CLASS_NAME»(){
-	 		return Response.ok().build();
+	 	@Path("/delete/{id}")
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	public Response delete«CLASS_NAME»(@PathParam("id") final «ID_TYPE» «ID_VALUE»){
+	 		return Response.ok(«VARIABLE_NAME»«CONFIG.service».delete«CLASS_NAME»(«ID_VALUE»)).build();
 	 	}
 	 }
 	'''
@@ -249,27 +287,27 @@ class BackendGeneratorGenerator implements IGenerator {
 	 * 
 	 * @since «model.since»
 	 */
-	 «IF CONFIG.testrunner != null»@RunWith(«CONFIG.testrunner».class)«ENDIF»
+	 «IF CONFIG.testConfig.testrunner != null»@RunWith(«CONFIG.testConfig.testrunner».class)«ENDIF»
 	 public class «CLASS_NAME»«CONFIG.webservice_test» {
 	 	
 	 	@Test
 	 	public void shouldSave«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 	
 	 	@Test
 	 	public void shouldEdit«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 	
 	 	@Test
 	 	public void shouldDelete«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 	
 	 	@Test
 	 	public void shouldGet«CLASS_NAME»(){
-	 		fail();
+	 		assertTrue(false);
 	 	}
 	 }
 	'''
