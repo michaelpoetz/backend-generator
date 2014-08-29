@@ -25,3 +25,7 @@ What's working already?
 
 TODO
 ----
+
+WIKI
+----
+look over [here](https://github.com/michaelpoetz/backend-generator/wiki)
